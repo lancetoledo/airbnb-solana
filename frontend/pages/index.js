@@ -10,12 +10,23 @@ import EditListingModal from '../components/Listing/EditListingModal'
 import ReserveListingModal from '../components/Listing/ReserveListingModal'
 import { format } from 'date-fns'
 import { useWallet } from '@solana/wallet-adapter-react'
+import { useAirbnb } from '../hooks/useAirbnb'
 
 
 export default function Home() {
 
     const {connected, publicKey} = useWallet()
-
+    const {
+        initialized, 
+        initializeUser, 
+        airbnbs, 
+        addAirbnb,
+        updateAirbnb,
+        removeAirbnb,
+        bookAirbnb,
+        bookings,
+        cancelBooking,
+    } = useAirbnb()
 
     const [showReservedListing, setShowReservedListing] = useState(false)
     const [listings, setListings] = useState(listingsData)
@@ -24,29 +35,13 @@ export default function Home() {
     const [reserveListingModalOpen, setReserveListingModalOpen] = useState(false)
     const [currentEditListingID, setCurrentEditListingID] = useState(null)
     const [currentReserveListingID, setCurrentReserveListingID] = useState(null)
-    const currentEditListing = useMemo(() => listings.find((listing) => listing.id === currentEditListingID), [currentEditListingID])
-    const displayListings = useMemo(() => (showReservedListing ? listings.filter((listing) => listing.isReserved) : listings), [showReservedListing, listings])
+    const currentEditListing = useMemo(() => airbnbs.find((airbnb) => airbnb.account.idx === currentEditListingID), [currentEditListingID])
+    const displayListings = useMemo(() => (showReservedListing ? bookings : airbnbs), [showReservedListing, airbnbs])
     
     const toggleShowReservedListing = () => {
         setShowReservedListing(!showReservedListing)
     }
-    const addListing = ({ location, country, price, description, imageURL }) => {
-        console.log({ location, country, price, description, imageURL })
-        const id = listings.length + 1
-        setListings([
-            ...listings,
-            {
-                id,
-                location:   location,
-                country: country,
-                description,
-                distance:0,
-                price: price,
-                rating: 5,
-                imageURL,
-            },
-        ])
-    }
+
 
     const toggleEditListingModal = (value, listingID) => {
         setCurrentEditListingID(listingID)
@@ -54,46 +49,20 @@ export default function Home() {
         setEditListingModalOpen(value)
     }
 
-    const editListing = ({ id, location, country, price, description, imageURL }) => {
-        setListings(
-            listings.map((listing) => {
-                console.log(listing.location)
-                if (listing.id === id) {
-                    return {
-                        ...listing,
-                        location:  location || listing.location.name,
-                        country: country || listing.location.country,
-                        description: description || listing.description,
-                        distance: listing.distance.km,
-                        price:price || listing.price.perNight,
-                        imageURL: imageURL || listing.imageURL,
-                        distance: listing.distance,
-                    }
-                }
-                return listing
-            })
-        )
-    }
-    const removeListing = (listingID) => {
-        setListings(listings.filter((listing) => listing.id !== listingID))
-    }
-
     const toggleReserveListingModal = (value, listingID) => {
-        setCurrentReserveListingID(listingID)
+        setCurrentEditListingID(listingID)
 
         setReserveListingModalOpen(value)
     }
 
     const reserveListing = ({ startDate, endDate }) => {
-        const formattedStartDate = format(new Date(startDate), 'MMM d')
-        const formattedEndDate = format(new Date(endDate), 'MMM d')
-        const range = `${formattedStartDate} - ${formattedEndDate}`
-        setListings(
-            listings.map((listing) => {
-                if (listing.id === currentReserveListingID) return { ...listing, isReserved: true, reservation: range }
-                return listing
-            })
-        )
+
+        // setListings(
+        //     listings.map((listing) => {
+        //         if (listing.id === currentReserveListingID) return { ...listing, isReserved: true, reservation: range }
+        //         return listing
+        //     })
+        // )
     }
 
     const unreserveListing = () => {
@@ -111,7 +80,7 @@ export default function Home() {
             <Head>
                 <title>Airbnb Clone</title>
             </Head>
-            <Header connected={connected} publicKey = {publicKey}/>
+            <Header connected={connected} publicKey = {publicKey} initialized = {initialized} initializeUser = {initializeUser}/>
             <main className="pt-10 pb-20">
                 <FilterMenu />
                 {connected && (
@@ -125,11 +94,11 @@ export default function Home() {
                     </div>
                 )}
 
-                <Listings connected={connected} showReservedListing={showReservedListing} listings={displayListings} toggleEditListingModal={toggleEditListingModal} toggleReserveListingModal={toggleReserveListingModal} removeListing={removeListing} unreserveListing={unreserveListing} />
+                <Listings connected={connected} showReservedListing={showReservedListing} listings={displayListings} toggleEditListingModal={toggleEditListingModal} toggleReserveListingModal={toggleReserveListingModal} removeListing={removeAirbnb} unreserveListing={cancelBooking} />
 
-                <AddListingModal addListing={addListing} addListingModalOpen={addListingModalOpen} setAddListingModalOpen={setAddListingModalOpen} />
-                <EditListingModal editListing={editListing} currentEditListing={currentEditListing} editListingModalOpen={editListingModalOpen} setEditListingModalOpen={setEditListingModalOpen} />
-                <ReserveListingModal reserveListing={reserveListing} reserveListingModalOpen={reserveListingModalOpen} setReserveListingModalOpen={setReserveListingModalOpen} />
+                <AddListingModal addListing={addAirbnb} addListingModalOpen={addListingModalOpen} setAddListingModalOpen={setAddListingModalOpen} />
+                <EditListingModal editListing={updateAirbnb} currentEditListing={currentEditListing} editListingModalOpen={editListingModalOpen} setEditListingModalOpen={setEditListingModalOpen} />
+                <ReserveListingModal reserveListing={bookAirbnb} currentEditListing={currentEditListing} reserveListingModalOpen={reserveListingModalOpen} setReserveListingModalOpen={setReserveListingModalOpen} />
             </main>
             <Footer />
         </div>

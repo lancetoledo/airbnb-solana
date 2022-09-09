@@ -5,6 +5,7 @@ import { truncate } from '../utils/string'
 require('@solana/wallet-adapter-react-ui/styles.css')
 
 function Header({ connected, publicKey, initializeUser , initialized, transactionPending}) {
+    
     return (
         <header className="sticky top-0 transition-all md:grid md:grid-cols-3 items-center px-10 xl:px-20 py-4 z-50 bg-white border-b">
             <div>
@@ -47,6 +48,8 @@ function Header({ connected, publicKey, initializeUser , initialized, transactio
 
                     <UserCircleIcon className="h-8 w-8" />
                 </div> */}
+
+                {initialized ? (<></>) : (<button className='border border-transparent cursor-pointer hover:bg-gray-100 rounded-full px-3 py-2' onClick={()=>initializeUser()}>Intialize</button>)}
 
                 <WalletMultiButton className='phantom-button' startIcon={<UserCircleIcon style={{height:32,width:32, color: '#1f2937'}}/>}>
                     <span className='text-sm font-medium text-black'>{connected ? truncate(publicKey.toString()) : "Connect Wallet"}</span>

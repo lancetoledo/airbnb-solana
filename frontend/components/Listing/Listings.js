@@ -6,7 +6,7 @@ function Listings({ connected, showReservedListing, listings, toggleEditListingM
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
                 {listings.map((listing) => (
                     // console.log(listing)
-                    <ListingItem key={listing.id} {...listing} connected={connected} showReservedListing={showReservedListing} removeListing={removeListing} toggleEditListingModal={toggleEditListingModal} toggleReserveListingModal={toggleReserveListingModal} unreserveListing={unreserveListing} />
+                    <ListingItem key={listing.account.idx} publicKey = {listing.publicKey} {...listing.account} connected={connected} showReservedListing={showReservedListing} removeListing={removeListing} toggleEditListingModal={toggleEditListingModal} toggleReserveListingModal={toggleReserveListingModal} unreserveListing={unreserveListing} />
                 ))}
             </div>
         </div>

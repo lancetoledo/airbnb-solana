@@ -5,9 +5,10 @@ import 'react-date-range/dist/styles.css' // main style file
 import 'react-date-range/dist/theme/default.css' // theme css file
 import { format } from 'date-fns'
 
-export default function ReserveListingModal({ reserveListing, reserveListingModalOpen, setReserveListingModalOpen }) {
+export default function ReserveListingModal({ reserveListing, currentEditListing, reserveListingModalOpen, setReserveListingModalOpen }) {
     const [startDate, setStartDate] = useState(new Date())
     const [endDate, setEndDate] = useState(new Date())
+console.log(currentEditListing)
 
     const selectionRange = {
         startDate,
@@ -26,8 +27,11 @@ export default function ReserveListingModal({ reserveListing, reserveListingModa
 
     const onConfirm = (e) => {
         e.preventDefault()
+        const formattedStartDate = format(new Date(startDate), 'MMM d')
+        const formattedEndDate = format(new Date(endDate), 'MMM d')
+        const range = `${formattedStartDate} - ${formattedEndDate}`
 
-        reserveListing({ startDate, endDate })
+        reserveListing(currentEditListing.account, range)
 
         closeModal()
     }
